@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "interfaces": {
+    "eth0": {
+      "dhcp": true,
+      "mtu": 1500
+    },
+    "wlan0": {
+      "dhcp": true,
+      "ssid": "dev-network",
+      "psk": "dev-password"
+    }
+  }
+} 

@@ -1,0 +1,24 @@
+{
+  "data_sources": [
+    {
+      "key": "network",
+      "path": "../../data/network.json",
+      "type": "json"
+    },
+    {
+      "key": "environment",
+      "path": "../../data/env.conf",
+      "type": "env"
+    }
+  ],
+  "templates": [
+    {
+      "template": "templates/hostname.conf.eex",
+      "target": "dev/etc/hostname"
+    },
+    {
+      "template": "templates/network.conf.eex",
+      "target": "dev/etc/network/interfaces"
+    }
+  ]
+} 

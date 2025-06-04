@@ -1,0 +1,1 @@
+<%= sys["model"] %>-<%= sys["serial_number"] %>

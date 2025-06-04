@@ -1,0 +1,18 @@
+[Unit]
+Description=Sysconfd Configuration Daemon
+Requires=data.mount
+After=data.mount
+
+[Service]
+Type=notify
+RemainAfterExit=yes
+User=root
+ExecStart=/usr/lib/sysconfd/bin/sysconfd start
+Environment="SYSCONFD_LOG_LEVEL=info"
+Environment="SYSCONFD_SYSTEMD_ENABLED=true"
+Restart=always
+RestartSec=5
+WatchdogSec=30s
+
+[Install]
+WantedBy=multi-user.target 
