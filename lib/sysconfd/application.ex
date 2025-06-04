@@ -8,7 +8,6 @@ defmodule Sysconfd.Application do
     Sysconfd.Processor.run_all()
 
     children = [
-      {Task, &watchdog_loop/0},
       Sysconfd.API.Supervisor
     ]
 
@@ -17,14 +16,5 @@ defmodule Sysconfd.Application do
 
     Sysconfd.Systemd.notify_ready()
     {:ok, pid}
-  end
-
-  defp watchdog_loop do
-    Sysconfd.Systemd.start_watchdog()
-    receive do
-      :watchdog_ping ->
-        Sysconfd.Systemd.handle_watchdog_ping()
-        watchdog_loop()
-    end
   end
 end
