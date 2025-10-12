@@ -1,7 +1,7 @@
 defmodule Sysconfd.Schema do
   require Logger
 
-  @schema_path "priv/schema/config_schema.json"
+
 
   def validate_config(config) do
     case get_schema() do
@@ -32,7 +32,8 @@ defmodule Sysconfd.Schema do
   end
 
   defp load_schema do
-    case File.read(@schema_path) do
+  schema_path = Application.app_dir(:sysconfd, "priv/schema/config_schema.json")
+  case File.read(schema_path) do
       {:ok, content} ->
         case Jason.decode(content) do
           {:ok, schema} ->
