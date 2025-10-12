@@ -12,11 +12,11 @@ config :sysconfd,
     watchdog_interval: 15
   ],
   global_data_sources: [
-    %{
-      "key" => "device",
-      "path" => "/data/config/device.json",
-      "type" => "json"
-    }
+#    %{
+#      "key" => "device",
+#      "path" => "/data/config/device.json",
+#      "type" => "json"
+#    }
   ]
 
 import_config "#{config_env()}.exs"

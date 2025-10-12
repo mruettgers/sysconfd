@@ -10,8 +10,7 @@ defmodule Sysconfd.DataSources.System do
 
     %{
       "board_name" => get_value(base_path, "/sys/class/dmi/id/board_name"),
-      "board_vendor" => get_value(base_path, "/sys/class/dmi/id/board_vendor"),
-      "image_version" => get_value(base_path, "/etc/release")
+      "board_vendor" => get_value(base_path, "/sys/class/dmi/id/board_vendor")
     }
   end
 
