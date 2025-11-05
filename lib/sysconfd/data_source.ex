@@ -17,10 +17,10 @@ defmodule Sysconfd.DataSource do
         {:ok, data} ->
           Map.put(acc, source["key"], data)
         {:error, :file_read_error} ->
-          Logger.debug("Skipping data source #{full_path} (file does not exist)")
+          Logger.warning("Data source file does not exist, skipping: #{full_path}")
           acc
         {:error, reason} ->
-          Logger.debug("Skipping data source #{full_path} (error: #{inspect(reason)})")
+          Logger.warning("Data source failed to load, skipping: #{full_path} (error: #{inspect(reason)})")
           acc
       end
     end)
@@ -29,6 +29,9 @@ defmodule Sysconfd.DataSource do
   defp read_file(path) do
     case File.read(path) do
       {:ok, content} -> {:ok, content}
+      {:error, :enoent} ->
+        # File doesn't exist - this is expected for optional data sources
+        {:error, :file_read_error}
       {:error, reason} ->
         Logger.error("Failed to read file #{path}: #{inspect(reason)}")
         {:error, reason}
