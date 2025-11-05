@@ -2,7 +2,7 @@
 # Model: <%= sys["model"] %>
 # Serial: <%= sys["serial_number"] %>
 
-<%= for {interface, config} <- network["interfaces"] do %>
+<%= for {interface, config} <- data["network"]["interfaces"] do %>
 auto <%= interface %>
 iface <%= interface %> inet <%= if config["dhcp"], do: "dhcp", else: "static" %>
 <%= if config["mtu"] do %>    mtu <%= config["mtu"] %><% end %>

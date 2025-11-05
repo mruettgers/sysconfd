@@ -59,12 +59,16 @@ defmodule Sysconfd.Processor do
   end
 
   defp process_service_config(config, base_dir) do
+    # Load all data sources from config.json
+    custom_data_sources = Sysconfd.DataSource.load_data_sources(config["data_sources"] || [], base_dir)
+
     data = %{}
     |> Map.merge(load_global_data_sources())
-    |> Map.merge(Sysconfd.DataSource.load_data_sources(config["data_sources"] || [], base_dir))
+    |> Map.merge(custom_data_sources)
     |> Map.put("sys", Sysconfd.DataSources.System.get_system_values())
     |> Map.put("env", Sysconfd.DataSources.Environment.get_environment_values())
     |> Map.put("net", Sysconfd.DataSources.Network.get_network_values())
+    |> Map.put("custom", custom_data_sources)
 
     Logger.debug("Data sources loaded: #{inspect(data)}")
 

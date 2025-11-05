@@ -15,10 +15,8 @@ defmodule Sysconfd.Template do
               target_dir = Path.dirname(target_path)
               case File.mkdir_p(target_dir) do
                 :ok ->
-                  # Convert data map to keyword list for EEx
-                  binding = data
-                    |> Map.to_list()
-                    |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
+                  # Create binding with sys, env, net directly accessible, and data containing custom data_sources
+                  binding = create_binding(data)
                   try do
                     rendered = EEx.eval_string(template_content, binding)
                     File.write!(target_path, rendered)
@@ -52,11 +50,9 @@ defmodule Sysconfd.Template do
   defp evaluate_condition(nil, _data), do: true
   defp evaluate_condition(condition, data) when is_binary(condition) do
     try do
-      binding = [
-        sys: data["sys"],
-        env: data["env"],
-        data: Map.drop(data, ["sys", "env"])
-      ]
+      # Create binding with sys, env, net directly accessible, and data containing custom data_sources
+      # Same format as template binding for consistency
+      binding = create_binding(data)
 
       {result, _} = Code.eval_string(condition, binding)
       result
@@ -67,4 +63,15 @@ defmodule Sysconfd.Template do
     end
   end
   defp evaluate_condition(_condition, _data), do: true
+
+  # Creates a binding with sys, env, net directly accessible for convenience,
+  # and data containing only the custom data_sources (from config.json)
+  defp create_binding(data) do
+    [
+      sys: Map.get(data, "sys"),
+      env: Map.get(data, "env"),
+      net: Map.get(data, "net"),
+      data: Map.get(data, "custom", %{})
+    ]
+  end
 end

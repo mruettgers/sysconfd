@@ -18,8 +18,7 @@
                 "properties": {
                     "key": {
                         "type": "string",
-                        "description": "Key to access this data source in templates. Note: 'sys', 'env', and 'net' are reserved keys for system values, environment variables, and network information respectively",
-                        "pattern": "^(?!sys$|env$|net$).*$"
+                        "description": "Key to access this data source in templates via @data.key. Note: If you use 'sys', 'env', or 'net' as a key, the system values will still be available via @sys, @env, and @net respectively, while your data source will be accessible via @data.sys, @data.env, or @data.net"
                     },
                     "path": {
                         "type": "string",
@@ -53,7 +52,7 @@
                     },
                     "condition": {
                         "type": "string",
-                        "description": "Condition to evaluate. Can use @data for data sources, @sys for system values, and @net for network information. Example: '@sys.model == \"MyDevice\" and @data.enabled == true'"
+                        "description": "Condition to evaluate. Can use @data for data sources (e.g., @data.network, @data.environment), @sys for system values, @env for environment variables, and @net for network information. Example: '@sys.model == \"MyDevice\" and @data.network.enabled == true'"
                     },
                     "delete_missing": {
                         "type": "boolean",

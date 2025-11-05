@@ -10,9 +10,19 @@ defmodule Sysconfd.DataSource do
       else
         path
       end
+
       Logger.info("Loading data source #{full_path} of type #{source["type"]}")
-      data = load_source(full_path, source["type"])
-      Map.put(acc, source["key"], data)
+
+      case load_source_with_status(full_path, source["type"]) do
+        {:ok, data} ->
+          Map.put(acc, source["key"], data)
+        {:error, :file_read_error} ->
+          Logger.debug("Skipping data source #{full_path} (file does not exist)")
+          acc
+        {:error, reason} ->
+          Logger.debug("Skipping data source #{full_path} (error: #{inspect(reason)})")
+          acc
+      end
     end)
   end
 
@@ -42,7 +52,35 @@ defmodule Sysconfd.DataSource do
     end
   end
 
+  # Returns data directly (for backward compatibility)
   def load_source(path, "json") do
+    case load_source_with_status(path, "json") do
+      {:ok, data} -> data
+      {:error, _} -> %{}
+    end
+  end
+
+  def load_source(path, "env") do
+    case load_source_with_status(path, "env") do
+      {:ok, data} -> data
+      {:error, _} -> %{}
+    end
+  end
+
+  def load_source(path, "text") do
+    case load_source_with_status(path, "text") do
+      {:ok, data} -> data
+      {:error, _} -> ""
+    end
+  end
+
+  def load_source(_path, type) do
+    Logger.error("Unsupported data source type: #{type}")
+    %{}
+  end
+
+  # Returns {:ok, data} or {:error, reason}
+  defp load_source_with_status(path, "json") do
     case read_file(path) do
       {:ok, content} ->
         try do
@@ -54,36 +92,28 @@ defmodule Sysconfd.DataSource do
         end
       {:error, _} -> {:error, :file_read_error}
     end
-    |> case do
-      {:ok, data} -> data
-      {:error, _} -> %{}
+  end
+
+  defp load_source_with_status(path, "env") do
+    # Check if file exists first
+    if File.exists?(path) do
+      try do
+        {:ok, Dotenv.load(path)}
+      rescue
+        e ->
+          Logger.error("Failed to parse env file #{path}: #{inspect(e)}")
+          {:error, e}
+      end
+    else
+      {:error, :file_read_error}
     end
   end
 
-  def load_source(path, "env") do
-    try do
-      {:ok, Dotenv.load(path)}
-    rescue
-      e ->
-        Logger.error("Failed to parse env file #{path}: #{inspect(e)}")
-        {:error, e}
-    end
-    |> case do
-      {:ok, data} -> data
-      {:error, _} -> %{}
-    end
-  end
-
-  def load_source(path, "text") do
+  defp load_source_with_status(path, "text") do
     case read_file(path) do
-      {:ok, content} -> content
-      {:error, _} -> ""
+      {:ok, content} -> {:ok, content}
+      {:error, _} -> {:error, :file_read_error}
     end
-  end
-
-  def load_source(_path, type) do
-    Logger.error("Unsupported data source type: #{type}")
-    %{}
   end
 
 end
